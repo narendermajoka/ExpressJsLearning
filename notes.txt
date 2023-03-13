@@ -1,0 +1,56 @@
+Express Js is framework for developing node js application
+
+request > middlewares > controller
+
+middlewares are created by app.use((req,res,next)=>{});
+next method must be called from every middleware
+
+we can use app.use and app.get or app.post to create middlewares or controllers
+when defining app.use order does matter if / is written at top and response is returning from it than
+app.use under this root slash will won't work
+
+app.get will search for exact match whereas app.use will use regex
+
+__dirname is global variable which gives us the path to the directory in which it is being used
+
+enable static like css serving in express as 
+app.use(express.static(path.join(__dirname,'public'))); //avails the public folder to app
+
+Templating engines replaces the values in placeholders in html
+1. EJS
+2. Pug(Jade)
+3. Handlebars
+
+app.set('view engine', 'pug'); //set template engine
+app.set('views', 'views'); //set where the views are stored, 2nd var is name of directory
+
+product-with-file.js is to store everything in json and read and write in json only
+but in actual we will use the DB
+
+one way to execute sql queries is like
+
+
+const db = require('./utils/database');
+
+db.execute('select * from products')
+.then((result)=>{
+    console.log(result[0]);
+})
+.catch(err=>{
+    console.log(err);
+});
+
+And database script looks like:
+const mysql = require('mysql2');
+
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'node-complete'
+});
+
+module.exports = pool.promise();
+
+
+We will use ORM library Sequelize to run sql queries easily in node
