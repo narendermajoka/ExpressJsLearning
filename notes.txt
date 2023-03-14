@@ -54,3 +54,18 @@ module.exports = pool.promise();
 
 
 We will use ORM library Sequelize to run sql queries easily in node
+
+in sequelize we can get all the products of user as:-
+first set the current user in req object in app.js
+also create below mapping:-
+User.hasMany(Product);
+
+Now we can call:-
+req.user.getProducts()
+  .then(products=>{
+    res.render('admin/products', {
+      prods: products,
+      pageTitle: 'Admin Products',
+      path: '/admin/products'
+    });
+  }).catch(err=> console.log(err)); 

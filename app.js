@@ -43,6 +43,16 @@ const { extname } = require('path');
 app.use(bodyParser.urlencoded()); //explicitly need to set body parse to get body in req.body
 app.use(express.static(path.join(__dirname,'public'))); //avails the public folder to app
 
+const User  = require('./models/user');
+
+app.use((req,res,next)=>{
+    User.findByPk(1)
+    .then(user=>{
+        req.user = user;
+        next();
+    }).catch(err=> console.log(err));     
+})
+
 app.use('/admin',adminRoutes); //define common context here for admin routes
 app.use(shopRoutes);
 
@@ -60,14 +70,26 @@ db.execute('select * from products')
 }); */
 
 const sequelize = require('./utils/database');
-
 const Product = require('./models/product');
-const User  = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 Product.belongsTo(User, {constraints: true, onDelete:'CASCADE'}); //creates foreign key in product for user table
+User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Cart.belongsToMany(Product, { through:  CartItem}); //association will be stored in CartItem table
+Product.belongsToMany(Cart, { through:  CartItem});
+
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem});
+
 
 sequelize.sync(
-    // {force: true} // don't use this property in production as it recreates tables
+    //   {force: true} // don't use this property in production as it recreates tables
 )  //create tables automatically
 .then(result=>{
     return User.findByPk(1);
@@ -77,15 +99,9 @@ sequelize.sync(
     if(!user){
         return User.create({name:'Narender', email: 'narendermjk.33@gmail.com'});
     }
+    return user;
+}).then((user)=>{
+    user.createCart(); //creates single cart for this user
+    app.listen(3000);
 })
 .catch(err=> console.log(err)); 
-
-app.use((req,res,next)=>{
-    User.findByPk(1)
-    .then(user=>{
-        req.user = user;
-        next();
-    }).catch(err=> console.log(err));     
-})
-
-app.listen(3000);

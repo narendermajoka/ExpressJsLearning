@@ -80,7 +80,8 @@ exports.postAddProduct = (req, res, next) => {
     title: title,
     price: price,
     description: description,
-    imageUrl: imageUrl
+    imageUrl: imageUrl,
+    userId: req.user.id
   })
   .then(result=>{
     res.redirect('/admin/products');
@@ -146,7 +147,18 @@ exports.getProducts = (req, res, next) => {
     });
   }).catch(err=> console.log(err)); */
 
+ /* one way to get all products using sequelize  
   Product.findAll()
+  .then(products=>{
+    res.render('admin/products', {
+      prods: products,
+      pageTitle: 'Admin Products',
+      path: '/admin/products'
+    });
+  }).catch(err=> console.log(err));  */
+
+  //to get products for logged in user, req.user is being set in app.js
+  req.user.getProducts()
   .then(products=>{
     res.render('admin/products', {
       prods: products,
