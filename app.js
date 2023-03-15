@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-const mongoConnect = require('./utils/database').mongoConnect;
 const User = require('./models/user');
 
 const app = express();
@@ -18,9 +18,9 @@ app.use(bodyParser.urlencoded()); //explicitly need to set body parse to get bod
 app.use(express.static(path.join(__dirname,'public'))); //avails the public folder to app
 
 app.use((req,res,next)=>{
-    User.findById('64102e48b074eb7b3b50b3ea')
+    User.findById('641150a3e9ba37ec88b12a16')
     .then(user=> {
-        req.user = new User(user._id, user.name, user.email, user.cart);
+        req.user = user;
         next();
     })
     .catch(err=> console.log(err));
@@ -32,6 +32,25 @@ app.use(shopRoutes);
 const errorController = require('./controllers/error');
 app.use(errorController.get404);
 
-mongoConnect(()=>{
+mongoose.connect('mongodb+srv://narender:AQGuoZvosSdPmvIw@cluster0.2wbhy1v.mongodb.net/shop?retryWrites=true&w=majority')
+.then(()=>{
+    console.log('MongoDB connected, Starting Server');
+
+    User.findById('641150a3e9ba37ec88b12a16')
+    .then(user=>{
+        if(!user){
+            const user = new User({
+                name : 'Narender',
+                email: 'narendermjk.33@gmail.com',
+                cart: {
+                    items: []
+                }
+            });
+            user.save();
+        }
+    }).catch(err=> console.log(err));
+    
     app.listen(3000);
+}).catch(err=>{
+    console.log(err);
 });

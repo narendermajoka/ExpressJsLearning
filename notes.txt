@@ -69,3 +69,6 @@ req.user.getProducts()
       path: '/admin/products'
     });
   }).catch(err=> console.log(err)); 
+
+  if mongoose doesn't return full data of oject we can use ._doc to get full object
+  as we did in postOrder of shop.js
