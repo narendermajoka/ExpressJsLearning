@@ -7,7 +7,7 @@ exports.getAddProduct = (req, res, next) => {
     editing: false,
     formsCSS: true,
     productCSS: true,
-    activeAddProduct: true
+    activeAddProduct: true,
   });
 };
 
@@ -29,7 +29,7 @@ exports.getEditProduct = (req,res,next)=>{
       product: product,
       formsCSS: true,
       productCSS: true,
-      activeAddProduct: true
+      activeAddProduct: true,
     });
   }).catch(err=> console.log(err));
  
@@ -91,7 +91,7 @@ exports.getProducts = (req, res, next) => {
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
-      path: '/admin/products'
+      path: '/admin/products',
     });
   }).catch(err=> console.log(err));  
 };

@@ -99,3 +99,32 @@ const mongodbSore = new MongoDBStore({
 app.use(
     session({ secret: 'mysecret', resave: false, saveUninitialized: false, store: mongodbSore})
 );
+
+if we set user in session object and directly get this user using req.session.user
+than it will be a simple user object we won't get mongoose functions in it to call
+so we will create a root level middleware which will get userid from session
+call mongodb to fetch object and set this object in req, and we will use this user from req not session
+in controllers
+
+Its not good practice to store plain passwords in DB
+we are using npm install bcryptjs
+
+We are protecting our application from cross site forgery attach(csrf)
+by using npm install csurf
+
+for every get request we will add csrf token and isAuthenticated in root level middleware
+and set these values in res.local (doing in app.js)
+
+Now these values will be available to our views we will set this csrf token in every form post request
+in hidden field which will be verified by our application else post request will not work
+eg.
+<input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+csurf is now deprecated
+
+Angular framework has csrf protection built in.
+
+To show the error messages to user we will use npm install connect-flash
+problem is that when we use res.redirect it will create a new request, than how can we pass the error message to this new request
+
+to solve above problem we using connect-flash which stores the data temporarily in session than remove quickly once it is shown to user
