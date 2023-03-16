@@ -61,13 +61,17 @@ exports.postEditProduct = (req, res, next) => {
   const description = req.body.description;
 
   Product.findById(id).then(product=>{
+    if(product.userId.toString() !== req.user._id.toString()){
+      console.log('User not authorized for this product');
+      return res.redirect('/');
+    }
     product.title = title;
     product.imageUrl = imageUrl;
     product.price = price;
     product.description = description;
-    return product.save();
-  }).then(()=>{
-    res.redirect('/admin/products');
+    return product.save().then((result)=>{
+      res.redirect('/admin/products');
+    });
   })
   .catch(err=>console.log(err));
  
@@ -75,7 +79,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct= (req, res, next) => {
   const id = req.body.productId;
-  Product.findByIdAndRemove(id)
+  Product.deleteOne({_id: id, userId: req.user._id})
   .then(()=>{
     res.redirect('/admin/products');
   }).catch(err=> console.log(err));
@@ -83,11 +87,10 @@ exports.postDeleteProduct= (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
+  Product.find({userId: req.user._id})
   // .select('title description -_id') //to fetch only some fields, add - infront if want to exclude
   // .populate('userId','name') //populate reference fields
   .then(products=>{
-    console.log(products);
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
