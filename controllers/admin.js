@@ -33,7 +33,7 @@ exports.getEditProduct = (req,res,next)=>{
       activeAddProduct: true,
       errorMessage:''
     });
-  }).catch(err=> console.log(err));
+  }).catch(err=> next(new Error(err)));
  
 };
 
@@ -42,7 +42,7 @@ exports.postAddProduct = (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
-      path: '/admin/edit-product',
+      path: '/admin/add-product',
       editing: false,
       errorMessage: errors.array()[0].msg
     });
@@ -62,7 +62,7 @@ exports.postAddProduct = (req, res, next) => {
   product.save().then(()=>{
     res.redirect('/admin/products');
   })
-  .catch(err=>console.log(err));
+  .catch(err=>next(new Error(err)));
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -102,7 +102,7 @@ exports.postEditProduct = (req, res, next) => {
       res.redirect('/admin/products');
     });
   })
-  .catch(err=>console.log(err));
+  .catch(err=> next(new Error(err)));
  
 };
 
@@ -111,7 +111,7 @@ exports.postDeleteProduct= (req, res, next) => {
   Product.deleteOne({_id: id, userId: req.user._id})
   .then(()=>{
     res.redirect('/admin/products');
-  }).catch(err=> console.log(err));
+  }).catch(err=> next(new Error(err)));
   
 };
 
@@ -125,5 +125,5 @@ exports.getProducts = (req, res, next) => {
       pageTitle: 'Admin Products',
       path: '/admin/products',
     });
-  }).catch(err=> console.log(err));  
+  }).catch(err=> next(new Error(err)));  
 };

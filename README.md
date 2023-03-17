@@ -136,3 +136,20 @@ like trim, lowercase, normalize email etc.
 
 in routes we are passing authvalidator's methods to post methods
 then results can be gathered by validationResult(req) which return array of errors
+
+Error Handling
+If use throw new Error(err) inside the sync code it will work,
+but this will not work if used in async code like in then or catch block
+in aync code we need to pass this error object using next(new Error(err))
+
+try and catch can be used in sync code, but for async we will run our code
+in then block and add catch block with then to handle err asynchronously
+
+simple middleware in express framework if of 3 arguments (req,res,next)
+but we do have special middleware for error handling which have 4 arguments (error,req,res,next)
+
+we can chain as many error middlewares but order will matter same as normal middlerwares
+
+if error is thrown like throw new Error('message') then express js will automatically handle this
+error and call next with this object, everntually all the errors will come inside
+4 argument middleware

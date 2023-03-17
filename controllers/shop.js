@@ -10,7 +10,7 @@ exports.getProducts = (req, res, next) => {
       path: '/products',
     });
   }).catch((err)=>{
-    console.log(err);
+    next(new Error(err));
   });
 
 };
@@ -23,7 +23,7 @@ exports.getProduct = (req,res,next) =>{
         pageTitle: product.title,
         path: '/products',
       });
-    }).catch(err=> console.log(err));
+    }).catch(err=> next(new Error(err)));
 
 };
 
@@ -35,7 +35,7 @@ exports.getIndex = (req, res, next) => {
       path: '/'
     });
   }).catch((err)=>{
-    console.log(err);
+    next(new Error(err));
   });
 };
 
@@ -51,7 +51,7 @@ exports.getCart =  (req, res, next) => {
         pageTitle: 'Your Cart',
         products: products,
       });
-  }).catch(err=> console.log(err));
+  }).catch(err=> next(new Error(err)));
 };
 
 exports.postCart = (req,res,next)=>{
@@ -70,7 +70,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   req.user.removeFromCart(prodId)
   .then(()=> res.redirect('/cart'))
-  .catch(err=> console.log(err));
+  .catch(err=> next(new Error(err)));
 };
 
 exports.postOrder = (req,res,next)=>{
@@ -94,7 +94,7 @@ exports.postOrder = (req,res,next)=>{
     req.user.clearCart();
     res.redirect('/orders');
   })
-  .catch(err=> console.log(err));
+  .catch(err=> next(new Error(err)));
   
 };
 
@@ -107,7 +107,7 @@ exports.getOrders = (req, res, next) => {
       pageTitle: 'Your Orders',
       orders: orders,
     });
-  }) .catch(err => console.log(err));
+  }) .catch(err => next(new Error(err)));
 };
 
 // exports.getCheckout = (req, res, next) => {

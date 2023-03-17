@@ -65,7 +65,7 @@ exports.postLogin = (req, res, next) => {
             });
       
     })
-    .catch(err => console.log(err));
+    .catch(err => next(new Error(err)));
 };
 
 exports.postSignup = (req, res, next) => {
@@ -141,7 +141,7 @@ exports.postReset = (req, res, next) => {
              });
          })
          .catch(err=>{
-            console.log(err);
+           next(new Error(err));
          });
     });
 };
@@ -168,7 +168,7 @@ exports.getNewPassword = (req,res,next)=>{
             userId: user._id,
             passwordToken: token
           });
-        }).catch(err=> console.log(err));
+        }).catch(err=> next(new Error(err)));
 };
 
 exports.postNewPassword = (req,res,next)=>{
@@ -189,6 +189,6 @@ exports.postNewPassword = (req,res,next)=>{
         return res.redirect('/login');
       })
       .catch(err=>{
-        console.log(err);
+        next(new Error(err));
       });
 };
