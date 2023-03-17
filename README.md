@@ -153,3 +153,11 @@ we can chain as many error middlewares but order will matter same as normal midd
 if error is thrown like throw new Error('message') then express js will automatically handle this
 error and call next with this object, everntually all the errors will come inside
 4 argument middleware
+
+File Upload and Download
+To work with files we need to npm install multer
+we need to set multer as middlerware to work with files
+
+app.use(
+    multer({storage: fileStorage, fileFilter: fileFilter}).single('image') //image is the field name in form
+);

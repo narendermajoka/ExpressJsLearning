@@ -5,6 +5,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session); //used to store session in mongodb
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 const User = require('./models/user');
 
@@ -18,6 +19,24 @@ const mongodbSore = new MongoDBStore({
 
 const csrfProtection = csrf();
 
+const fileStorage = multer.diskStorage({
+    destination: (req,file,cb)=>{
+        cb(null, 'images'); //first field for error if any, second is directory where image will be uploaded
+    },
+    filename: (req,file,cb)=>{
+        cb(null, new Date().getTime().toString() + '-' +file.originalname) //file.originalname is inbuilt method of file ob
+    }
+});
+
+const fileFilter = (req,file,cb)=>{
+    cb(null, true);
+    if(file.mimetype=== 'image/png' || file.mimetype==='image/jpg' || file.mimetype==='image/jpeg'){
+        cb(null, true);
+    }else{
+        cb(null, false);
+    }
+};
+
 app.set('view engine', 'ejs');
 
 const adminRoutes =  require('./routes/admin');
@@ -27,8 +46,14 @@ const authRoutes = require('./routes/auth');
 const path = require('path');
 
 
-app.use(bodyParser.urlencoded()); //explicitly need to set body parse to get body in req.body
-app.use(express.static(path.join(__dirname,'public'))); //avails the public folder to app
+app.use(bodyParser.urlencoded({ extended: false })); //explicitly need to set body parse to get body in req.body
+app.use(
+    multer({storage: fileStorage, fileFilter: fileFilter}).single('image') //image is the field name in form
+);
+
+app.use(express.static(path.join(__dirname,'public'))); //avails the public folder to app at root path
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 app.use(
     session({ secret: 'mysecret', resave: false, saveUninitialized: false, store: mongodbSore})
 );
@@ -72,6 +97,7 @@ app.use(errorController.get404);
 app.use((error,req,res,next)=>{
     //here we can get the variables from error object if set at the source
     console.log("Inside global handler of error");
+    console.log(error);
     return res.status(500).render('internal-server-error', {
         path:'',
         isAuthenticated: req.isAuthenticated,

@@ -1,3 +1,7 @@
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -108,6 +112,48 @@ exports.getOrders = (req, res, next) => {
       orders: orders,
     });
   }) .catch(err => next(new Error(err)));
+};
+
+exports.getOrderInvoice = (req,res,next) =>{
+     const orderId = req.params.orderId;
+     Order.findById(orderId)
+          .then(order=>{
+            if(!order){
+              return next(new Error('Order not valid!'));
+            }
+            if(order.user.userId.toString() !== req.user._id.toString()){
+              return next(new Error('Unauthorized! to download invoice'));
+            }
+
+            const invoiceName = 'invoice-'+ orderId + '.pdf';
+            const invoicePath = path.join('data','invoices', invoiceName);
+
+            console.log(order);
+
+            const doc = new PDFDocument();
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName +'"');
+            doc.pipe(fs.createWriteStream(invoicePath));
+            doc.pipe(res);
+
+            doc.fontSize(25).text('Invoice');
+            doc.text('----------------------');
+
+            let totalPrice = 0;
+            console.log('heyaaa!!!');
+            order.products.forEach(p=>{
+              console.log('Inside products');
+                console.log(p);
+                totalPrice += (p.quantity * p.product.price);
+                doc.fontSize(14)
+                   .text(p.product.title+ ' - '+ p.quantity +' X ' +'$'+p.product.price);
+            });
+            doc.text('------------');
+            
+            doc.fontSize(20)
+              .text('Total Price: $' + totalPrice);
+            doc.end();
+          }).catch(err=> next(err));
 };
 
 // exports.getCheckout = (req, res, next) => {
