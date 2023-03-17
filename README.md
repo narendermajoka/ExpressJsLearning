@@ -128,3 +128,11 @@ To show the error messages to user we will use npm install connect-flash
 problem is that when we use res.redirect it will create a new request, than how can we pass the error message to this new request
 
 to solve above problem we using connect-flash which stores the data temporarily in session than remove quickly once it is shown to user
+
+we are business validations using npm install express-validator
+It basically provides inbuilt methods to check for some use cases like valid email
+valid string, we can pass custom validator to this also, it also provides method of data santizations
+like trim, lowercase, normalize email etc.
+
+in routes we are passing authvalidator's methods to post methods
+then results can be gathered by validationResult(req) which return array of errors

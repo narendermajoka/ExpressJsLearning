@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto'); //inbuilt library in node
+const {validationResult} = require('express-validator/check'); 
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash('error');
@@ -31,6 +32,15 @@ exports.getSignup = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
+
+  const validationErrors = validationResult(req);
+  if(!validationErrors.isEmpty()){
+    return res.status(422).render('auth/login',{
+      path: '/login',
+      pageTitle: 'Login',
+      errorMessage: validationErrors.array()[0].msg
+    });
+  }
   const email = req.body.email;
   const password = req.body.password;
   User.findOne({email : email})
@@ -59,32 +69,30 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postSignup = (req, res, next) => {
+  
+  const validationErrors = validationResult(req);
+  if(!validationErrors.isEmpty()){
+    return res.render('auth/signup', {
+      path: '/signup',
+      pageTitle: 'Signup',
+      errorMessage: validationErrors.array()[0].msg
+    });
+  }
+  console.log('came forward');
   const email = req.body.email;
   const password = req.body.password;
-  const confirmPassword = req.body.confirmPassword;
-  User.findOne({email: email})
-      .then(user=>{
-        if(user){
-          console.log('user already exists');
-          return res.redirect('/signup');
-        }else{
-          return bcrypt
-                  .hash(password, 12) //its async method
-                      .then(hashedPassord=>{
-                        const user = new User({
-                          email: email,
-                          password: hashedPassord,
-                          cart: { items: []}
-                        });
-                        return user.save();
-                      })
-                      .then(result=>{
-                          res.redirect('/login');
-                      }); 
-                    }
-      })
-      .catch(err=> console.log(err));
-
+  return bcrypt.hash(password, 12) //its async method
+    .then(hashedPassord => {
+      const user = new User({
+        email: email,
+        password: hashedPassord,
+        cart: { items: [] }
+      });
+      return user.save();
+    })
+    .then(result => {
+      res.redirect('/login');
+    });
 };
 
 exports.postLogout = (req, res, next) => {
