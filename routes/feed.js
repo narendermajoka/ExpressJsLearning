@@ -1,17 +1,18 @@
 const express = require('express');
 const feedController = require('../controllers/feed');
 const feedValidator = require('../validators/feed-validator');
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
-router.get('/posts',feedController.getPosts);
+router.get('/posts', isAuth, feedController.getPosts);
 
-router.post('/post', feedValidator.createPost, feedController.createPost)
+router.post('/post', isAuth,  feedValidator.createPost, feedController.createPost)
 
-router.get('/posts/:postId',feedController.getPost);
+router.get('/posts/:postId', isAuth, feedController.getPost);
 
-router.put('/posts/:postId', feedValidator.createPost, feedController.updatePost);
+router.put('/posts/:postId', isAuth, feedValidator.createPost, feedController.updatePost);
 
-router.delete('/posts/:postId', feedController.deletePost);
+router.delete('/posts/:postId', isAuth, feedController.deletePost);
 
 module.exports = router;

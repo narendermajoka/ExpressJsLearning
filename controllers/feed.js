@@ -1,6 +1,8 @@
 const { validationResult } = require('express-validator');
-const post = require('../models/post');
 const Post = require('../models/post');
+const user = require('../models/user');
+const User = require('../models/user');
+
 const fileUtility = require('../utils/file-utility');
 
 exports.getPosts = (req, res, next) => {
@@ -8,13 +10,13 @@ exports.getPosts = (req, res, next) => {
     const perPage = 2;
     let totalPosts;
     Post.find().countDocuments()
-        .then(count=>{
+        .then(count => {
             totalPosts = count;
-            return post.find()
-                       .skip((currentPage - 1)*perPage)
-                       .limit(perPage);
+            return Post.find()
+                .skip((currentPage - 1) * perPage)
+                .limit(perPage);
         })
-       .then(posts => {
+        .then(posts => {
             res.status(200).json({
                 message: '',
                 totalPosts: totalPosts,
@@ -44,14 +46,20 @@ exports.createPost = (req, res, next) => {
         title: req.body.title,
         content: req.body.content,
         imageUrl: imageUrl,
-        creator: { name: req.body.creator }
+        creator: req.userId
     });
 
     post.save()
+        .then(post => {
+            return User.findById(req.userId);
+        })
+        .then(user => {
+            user.posts.push(post);
+            return user.save();
+        })
         .then(result => {
             return res.status(201).json({
-                message: 'Post created successfully!',
-                post: { id: result._id }
+                message: 'Post created successfully!'
             })
         })
         .catch(err => next(err));
@@ -84,12 +92,16 @@ exports.updatePost = (req, res, next) => {
                 err.statusCode = 404;
                 throw err;
             }
+            if(post.creator.toString() !== req.userId.toString()){
+                const err = new Error('Not Authorized to update post');
+                err.statusCode = 403;
+                throw err;
+            }
             if (req.file) {
                 post.imageUrl = req.file.path;
             }
             post.title = req.body.title;
             post.content = req.body.content;
-            post.creator = { name: req.body.creator };
             return post.save()
                 .then(post => {
                     res.status(200).json({ 'message': 'Post Updated Successfully', post: post });
@@ -108,13 +120,23 @@ exports.deletePost = (req, res, next) => {
                 err.statusCode = 404;
                 throw err;
             }
-
+            if(post.creator.toString() !== req.userId.toString()){
+                const err = new Error('Not Authorized to update post');
+                err.statusCode = 403;
+                throw err;
+            }
             fileUtility.deleteFile(post.imageUrl);
             return post.deleteOne({ _id: postId });
         })
         .then(() => {
-            res.status(200).json({ 'message': 'Post deleted successfully' });
+            return User.findById(req.userId);
         })
-        .catch(err => next(err))
+        .then(user=>{
+            user.posts.pull(postId);
+            return user.save();
+        })
+        .then(result=>{
+            return res.status(200).json({ 'message': 'Post deleted successfully' });
+        })
         .catch(err => next(err));
 };
