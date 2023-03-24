@@ -161,3 +161,18 @@ we need to set multer as middlerware to work with files
 app.use(
     multer({storage: fileStorage, fileFilter: fileFilter}).single('image') //image is the field name in form
 );
+
+
+Graphql:
+stateless, client independent APIs
+Higher flexiblity than REST APis as we can define what we want in response
+All the requests of graphql are sent to only single post url: /graphql
+in body we define what we want to do
+two things can be send in request body are:-
+    Query - to get the data from server
+    Mutation - to push the data to server
+
+Graphql add another layer in between the client and server
+which provides the schema reterival feature to client, like in postman we can do the ctrl + space to fetch keys that we can send to server to get or update the data
+
+GraphQL doesnt work with file Uploading, we need to hit rest to store image on server and then stored path in rest and then send this in graphql request

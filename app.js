@@ -5,8 +5,10 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const { v4: uuidv4} = require('uuid');
 
-const feedRoutes = require('./routes/feed');
-const authRoutes = require('./routes/auth');
+const {graphqlHTTP} = require('express-graphql');
+const graphqlSchema = require('./graphql/schema');
+const graphqlResolver = require('./graphql/resolvers');
+
 
 const app = express();
 
@@ -40,14 +42,18 @@ app.use((req,res,next)=>{
     next();
 });
 
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
-
 app.use((error,req,res,next)=>{
     const statusCode = error.statusCode || 500;
     console.log(error);
     return res.status(statusCode).json({message: error.message, data: error.data});
 });
+
+app.use('/graphql', graphqlHTTP({
+    schema : graphqlSchema,
+    rootValue: graphqlResolver,
+    graphiql: true
+}));
+
 
 mongoose.connect('mongodb://127.0.0.1:27017/social-media')
     .then(()=>{
