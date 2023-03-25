@@ -1,3 +1,7 @@
+App run command:-
+
+npm run start:dev
+
 # ExpressJsLearning
 Node js with ExpressJs
 

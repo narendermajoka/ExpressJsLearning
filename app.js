@@ -9,8 +9,7 @@ const multer = require('multer');
 
 const User = require('./models/user');
 
-const MONGODB_URI = 'mongodb://127.0.0.1:27017/shop';
-
+const MONGODB_URI = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}?authMechanism=DEFAULT`;
 const app = express();
 const mongodbSore = new MongoDBStore({
     uri: MONGODB_URI,
@@ -106,10 +105,10 @@ app.use((error,req,res,next)=>{
       });
 });
 
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI, {  dbName:process.env.MONGO_DB_NAME})
 .then(()=>{
     console.log('MongoDB connected, Starting Server');
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
 }).catch(err=>{
     next(new Error(err));
 });
