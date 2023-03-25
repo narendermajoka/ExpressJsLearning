@@ -1,11 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session); //used to store session in mongodb
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
 
 const User = require('./models/user');
 
@@ -42,8 +45,9 @@ const adminRoutes =  require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
-const path = require('path');
 
+app.use(helmet()); //added required security headers in response
+app.use(compression());
 
 app.use(bodyParser.urlencoded({ extended: false })); //explicitly need to set body parse to get body in req.body
 app.use(
@@ -91,6 +95,7 @@ app.use(authRoutes);
 
 
 const errorController = require('./controllers/error');
+const { compress } = require('pdfkit');
 app.use(errorController.get404);
 
 app.use((error,req,res,next)=>{
